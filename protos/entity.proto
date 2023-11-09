@@ -1,0 +1,46 @@
+syntax = "proto3";
+package entity;
+import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
+
+service EntityService {
+    rpc Check (google.protobuf.Empty) returns (CheckResult) {}
+    rpc Insert (EntityInsert) returns (EntityResult) {}
+    rpc GetAll (google.protobuf.Empty) returns (EntityList) {}
+}
+
+message Entity {
+    string _id = 1;
+    string x1 = 2;
+    string y1 = 3;
+    string x2 = 4;
+    string y2 = 5;
+}
+
+message EntityList {
+    repeated Entity entitys = 1;
+}
+message EntityResult {
+    Entity entity = 1;
+}
+message EntityInsert {
+    string x1 = 1;
+    string y1 = 2;
+    string x2 = 3;
+    string y2 = 4;
+}
+
+message EntityId {
+    string id = 1;
+}
+
+enum MLStatus
+{   
+    action = 0;
+    train = 1;
+    idle = 2;
+}
+
+message CheckResult {
+    MLStatus result = 1;
+}

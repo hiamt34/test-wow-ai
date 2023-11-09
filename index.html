@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>test</title>
+  <style>
+    #canvas {
+      border: 1px solid #000;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="canvas" width="800" height="600"></canvas>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  let isDrawing = false;
+  let startX, startY, endX, endY;
+
+  canvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    startX = e.clientX - canvas.getBoundingClientRect().left;
+    startY = e.clientY - canvas.getBoundingClientRect().top;
+  });
+
+  canvas.addEventListener('mousemove', (e) => {
+    if (!isDrawing) return;
+
+    endX = e.clientX - canvas.getBoundingClientRect().left;
+    endY = e.clientY - canvas.getBoundingClientRect().top;
+
+    drawRect(startX, startY, endX, endY);
+  });
+
+  canvas.addEventListener('mouseup', () => {
+    isDrawing = false;
+    // Send 'predict' command with coordinates to the API
+    sendPredictRequest(startX, startY, endX, endY);
+  });
+
+  function drawRect(x1, y1, x2, y2) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.rect(x1, y1, x2 - x1, y2 - y1);
+    ctx.stroke();
+  }
+
+  function sendPredictRequest(x1, y1, x2, y2) {
+    // Use fetch or another method to send the 'predict' command with coordinates to the API
+    // Example using fetch:
+    fetch('http://localhost:3000/predict', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        command: 'predict',
+        coordinates: { x1, y1, x2, y2 },
+      }),
+    })
+    .then(response => response.json())
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+  }
+</script>
+
+</body>
+</html>
