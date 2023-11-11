@@ -6,7 +6,9 @@ import "google/protobuf/any.proto";
 service EntityService {
     rpc Check (google.protobuf.Empty) returns (CheckResult) {}
     rpc Insert (EntityInsert) returns (EntityResult) {}
+    rpc InsertMany (EntityInsertList) returns (EntityList) {}
     rpc GetAll (google.protobuf.Empty) returns (EntityList) {}
+    rpc UpdateStatus (UpdateStatus) returns (CheckResult) {}
 }
 
 message Entity {
@@ -23,11 +25,15 @@ message EntityList {
 message EntityResult {
     Entity entity = 1;
 }
+
 message EntityInsert {
     string x1 = 1;
     string y1 = 2;
     string x2 = 3;
     string y2 = 4;
+}
+message EntityInsertList {
+    repeated EntityInsert entitys = 1;
 }
 
 message EntityId {
@@ -43,4 +49,8 @@ enum MLStatus
 
 message CheckResult {
     MLStatus result = 1;
+}
+
+message UpdateStatus {
+    MLStatus status = 1;
 }

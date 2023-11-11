@@ -3,12 +3,12 @@ import * as grpc from '@grpc/grpc-js'
 import * as protoLoader from '@grpc/proto-loader'
 import { ProtoGrpcType } from '../protos/interfaces/entity'
 import dotenv from 'dotenv'
-import catchErrors from '../ultis/catchError'
-import { Entity } from '../protos/interfaces/entity/Entity'
-import { MLStatus } from '../protos/interfaces/entity/MLStatus'
+import catchErrors from './ultis/catchError'
 import { EntityServiceHandlers } from '../protos/interfaces/entity/EntityService'
+import { db } from './db/database'
+import entityService from './service'
 dotenv.config()
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT_SEVER || 3001
 const PROTO_FILE = '../protos/entity.proto'
 
 const packageDef = protoLoader.loadSync(path.resolve(__dirname, PROTO_FILE))
@@ -17,24 +17,17 @@ export const grpcObj = grpc.loadPackageDefinition(
     packageDef
 ) as unknown as ProtoGrpcType
 const entityPackage = grpcObj.entity
-interface IDB {
-    statusML: MLStatus
-    datas: Entity[]
-}
-export let db: IDB
-const connectAndInitDB = (): IDB => {
-    return {
-        statusML: MLStatus.idle,
-        datas: [],
-    }
+const connectAndInitDB = () => {
+    return db
 }
 function getServer() {
     const server = new grpc.Server()
     server.addService(entityPackage.EntityService.service, {
-        // Insert: catchErrors(roomService.Insert),
-        // InsertUserForRoom: catchErrors(roomService.InsertUserForRoom),
-        // GetRoomById: catchErrors(roomService.GetRoomById),
-        // OutRoom: catchErrors(roomService.OutRoom),
+        Check: catchErrors(entityService.Check),
+        Insert: catchErrors(entityService.Insert),
+        GetAll: catchErrors(entityService.GetAll),
+        UpdateStatus: catchErrors(entityService.UpdateStatus),
+        InsertMany: catchErrors(entityService.InsertMany),
     } as EntityServiceHandlers)
     return server
 }
@@ -42,18 +35,18 @@ function getServer() {
 function runServer() {
     const server = getServer()
     server.bindAsync(
-        `127.0.0.1:${PORT}`,
+        `server-container`,
         grpc.ServerCredentials.createInsecure(),
         (err, port) => {
             if (err) {
                 console.error(err)
                 return
             }
-            console.info('room-server running ' + `127.0.0.1:${PORT}`)
+            console.info('grpc-server running ' + `server-container`)
             server.start()
         }
     )
-    db = connectAndInitDB()
+    connectAndInitDB()
 }
 
 runServer()

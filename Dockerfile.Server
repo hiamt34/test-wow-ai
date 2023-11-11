@@ -1,0 +1,21 @@
+FROM node:14-alpine
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install typescript ts-node
+
+RUN npm install
+
+COPY protos  /usr/src/app/protos
+
+COPY server /usr/src/app/server
+
+COPY tsconfig.json ./
+
+EXPOSE 3001
+
+CMD ["npx", "ts-node", "server/index.ts"]
+
+
